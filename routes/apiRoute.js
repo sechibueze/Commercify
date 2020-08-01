@@ -2,9 +2,12 @@ const express = require('express');
 
 const router = express.Router();
 
-router.use('/users', (req, res) => {
-  res.status(200).json({
-    message: 'OK'
-  })
-})
+const UsersRoute = require('./UsersRoute');
+const CollectionsRoute = require('./CollectionsRoute');
+const ProductsRoute = require('./ProductsRoute');
+
+router.use('/users', UsersRoute);
+router.use('/collections', CollectionsRoute);
+router.use('/products', ProductsRoute);
+
 module.exports = router;
