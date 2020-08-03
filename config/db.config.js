@@ -4,11 +4,13 @@ const dbConnection = _ => {
   const prodURI =  process.env.MONGODBURI || 'mongodb://localhost:27017/commecify';
   const testURI =  process.env.TEST_MONGODBURI || 'mongodb://localhost:27017/commecify_test';
 
-  const uri = process.env.NODE_ENV === 'test' ? testURI : prodURI ;
+  console.log('process.env.TEST_MONGODBURI', process.env.NODE_ENV)
+  console.log('process.env.MONGODBURI', process.env.MONGODBURI)
+  
+  const uri = process.env.NODE_ENV === 'test' ? process.env.TEST_MONGODBURI : process.env.MONGODBURI ;
   const options = { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false };
 
   console.log('process.env.TEST_MONGODBURI', process.env.TEST_MONGODBURI)
-  // console.log('process.env.TEST_MONGODBURI', process.env.TEST_MONGODBURI)
   console.log('test URI', testURI)
   console.log('uri', uri)
 
