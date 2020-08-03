@@ -13,3 +13,6 @@ deploy:
   
   on:
     branch: server
+env: 
+  - TEST_MONGODBURI=$TEST_MONGODBURI
+  - JWT_SECRET_KEY=$JWT_SECRET_KEY
