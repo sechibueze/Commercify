@@ -99,7 +99,89 @@ const login = (req, res) => {
   });
 }
 
+// Verify user with token
+const getUserWithAuth = (req, res) => {
+  const currentUserId = req.authUser.id;
+
+  User.findOne({_id: currentUserId})
+    .select('-password')
+    .then(user => {
+
+      return res.status(200).json({
+        status: true,
+        message: 'Authorized User data',
+        data: user
+      })
+
+    })
+    .catch(err => {
+      return res.status(500).json({
+        status: false,
+        error: 'Failed to authenticate user'
+      })
+    })
+};
+
+// Update User role 
+const updateUserAuth = (req, res) => {
+  
+   const errorsContainer = validationResult(req);
+    if (!errorsContainer.isEmpty()) {
+      return res.status(422).json({
+        status: false,
+        errors: errorsContainer.errors.map(err => err.msg)
+      });
+    }
+    
+    const { email } = req.body;
+
+  User.findOne({ email })
+    .select('-password')
+    .then(user => {
+
+      if (!user) {
+        return res.status(500).json({
+          status: false,
+          error: 'No user account found'
+        })
+      }
+
+      // User has an account
+      
+
+      if (!user.roles.includes('admin')) {
+        user.roles = [...user.roles, 'admin'];
+      }else{
+        user.roles = user.roles.filter(role => role !== 'admin');
+       
+      }
+      user.save(err => {
+        if (err) {
+          return res.status(500).json({
+          status: false,
+          error: 'Failed to update user role'
+        })
+        }
+
+        return res.status(200).json({
+          status: true,
+          message: 'User role has been updated accordingly',
+          data: user
+        });
+      })
+    })
+    .catch(err => {
+      return res.status(500).json({
+        status: false,
+        error: 'Failed to find user'
+      })
+    })
+};
+
+
 module.exports = {
   signup,
-  login
+  login,
+  getUserWithAuth,
+  updateUserAuth
 };

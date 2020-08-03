@@ -45,4 +45,43 @@ describe('User login', function() {
     expect(res.body).to.have.property('message');
     expect(res.body).to.have.property('token');
   });
+
+  it('should get the details of the logged in user', async () => {
+    const res = await request.get('/api/users/auth')
+        .set({
+          'x-access-token': authToken
+        });
+        
+
+    expect(res.status).to.equal(200);
+    expect(res.body.status).to.equal(true);
+    expect(res.body).to.have.property('message');
+    expect(res.body).to.have.property('data');
+    expect(res.body.data).to.be.an('object');
+    expect(res.body.data.email).to.equal(email);
+  });
+
+  it('should update a new user role to admin', async () => {
+    const res = await request.put('/api/users/auth')
+        .send({ email: email });
+        
+    expect(res.status).to.equal(200);
+    expect(res.body.status).to.equal(true);
+    expect(res.body).to.have.property('message');
+    expect(res.body).to.have.property('data');
+    expect(res.body.data).to.be.an('object');
+    expect(res.body.data.roles).to.contain('admin');
+  });
+
+  it('should remove admin from an old user role ', async () => {
+    const res = await request.put('/api/users/auth')
+        .send({ email: email });
+
+    expect(res.status).to.equal(200);
+    expect(res.body.status).to.equal(true);
+    expect(res.body).to.have.property('message');
+    expect(res.body).to.have.property('data');
+    expect(res.body.data).to.be.an('object');
+    expect(res.body.data.roles).to.not.contain('admin');
+  });
 });
