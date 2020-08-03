@@ -3,7 +3,8 @@ const router =express.Router();
 const { check } = require('express-validator')
 
 const {
-  signup
+  signup,
+  login
 } = require('../controllers/UserControllers')
 /**
  * @route POST /users
@@ -20,12 +21,9 @@ router.post('/', [
  * @route POST /users/auth
  * @desc Allow  existing users to login
  */
-// router.post('/auth', [
-  
-//   check('email', 'Email is required').isEmail(),
-//   check('password', 'Password is required').isLength({ min: 6}),
-// ], (req, res) => {
-//   return res.status(200).json({message: 'login ok'})
-// });
+router.post('/auth', [
+  check('email', 'Email is required').isEmail(),
+  check('password', 'Password is required').isLength({ min: 6}),
+], login);
 
  module.exports = router;

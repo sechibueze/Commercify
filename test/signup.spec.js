@@ -21,7 +21,7 @@ let users = [
   }
 ];
 let newTestUser = users[0];
-describe('User signup', () => {
+describe('User signup', function() {
   before( done => {
      User.deleteOne({ email: newTestUser.email }, (err) => {
       if (err) done(err)
