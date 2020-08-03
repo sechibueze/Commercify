@@ -4,7 +4,8 @@ const expect = require('chai').expect;
 
 const app = require('../app');
 const request = supertest(app);
-
+console.log('NODE env test', process.env.NODE_ENV)
+console.log('Test DB URI', process.env.TEST_MONGODBURI)
 const User = require('../models/User');
 let users = [
   {
@@ -21,7 +22,7 @@ let users = [
   }
 ];
 let newTestUser = users[0];
-describe('User signup', () => {
+describe('User signup', function() {
   before( done => {
      User.deleteOne({ email: newTestUser.email }, (err) => {
       if (err) done(err)
