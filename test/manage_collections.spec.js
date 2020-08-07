@@ -12,14 +12,15 @@ const mockCollection = {
   title: 'Test collection 1',
   description: 'Test description 1'
 }
-let password = '123456'
+let plainPassword = '123456'
 let mockUser = {
   firstname: 'Kevin',
   lastname: 'Hunt',
-  email: 'thinkhunk@gmail.com',
-  password: bcrypt.hashSync(password)
+  email: 'thinkhunk-collection0@gmail.com',
+  password: bcrypt.hashSync(plainPassword)
 };
 let dataToUpdateCollection = {
+  _id: '',
   title: 'Test collection updated 1',
   description: 'Test description updated 1'
 };
@@ -28,78 +29,116 @@ let adminToken = '';
 describe('Manage Collection', function(){
   before(done => {
     User.create(mockUser, err => {
-      if (err) done(err);
+      if (err) return done(err);
+        request.post('/api/users/auth')
+          .send({ email: mockUser.email, password: plainPassword})
+          .end((err, res) => {
+            if (err) done(err);
+            // console.log('Admin token : ', res.body)
+              adminToken = res.body.token;
+            done()
+          })
 
-      done()
+      // done()
     });
   });
 
-  afterEach(done => {
-    request.post('/api/users/auth')
-      .send({ email: mockUser.email, password: mockUser.password})
+  // beforeEach(done => {
+    // request.post('/api/users/auth')
+    //   .send({ email: mockUser.email, password: plainPassword})
+    //   .end((err, res) => {
+    //     if (err) done(err);
+    //     // console.log('Admin token : ', res.body)
+    //       adminToken = res.body.token;
+    //     done()
+    //   })
+  // })
+
+  after( done => {
+     User.deleteMany({  }, (err) => {
+      if (err) done(err)
+        Collection.deleteMany({}, err => {
+          if (err) done(err)
+          done()
+        })
+     })
+  });
+
+  it('Should create a new collection', function(done) {
+     request.post('/api/collections')
+      .send(mockCollection)
       .end((err, res) => {
-        if (err) done(err);
-          adminToken = res.body.token;
+          // console.log('New collection : ', res.body)
+          dataToUpdateCollection._id = res.body.data._id ;
+    
+        expect(res.status).to.equal(201);
+        expect(res.body.status).to.equal(true);
+        expect(res.body).to.have.property('message');
+        expect(res.body).to.have.property('data');
+        expect(res.body.data).to.have.property('title');
+        expect(res.body.data).to.have.property('_id');
+        expect(res.body.data.title).to.equal(mockCollection.title);
         done()
-      })
-  })
 
-  it('Should create a new collection', async _ => {
-    const res = await request.post('/api/collections')
-      .send(mockCollection);
-
-    expect(res.status).to.equal(201);
-    expect(res.body.status).to.equal(true);
-    expect(res.body).to.have.property('message');
-    expect(res.body).to.have.property('data');
-    expect(res.body.data).to.have.property('title');
-    expect(res.body.data).to.have.property('_id');
-    expect(res.body.data.title).to.equal(mockCollection.title);
+      });
   });
 
 
-  it('Should return a list of all collections in database', async _ => {
-    const res = await request.get('/api/collections')
-      // .send(mockCollection);
-    // dataToUpdateCollection = res.body.data;
+  it('Should return a list of all collections in database', function(done) {
+    request
+      .get('/api/collections')
+      .end((err, res) => {
+        
+        expect(res.status).to.equal(200);
+        expect(res.body.status).to.equal(true);
+        expect(res.body).to.have.property('message');
+        expect(res.body).to.have.property('data');
+        expect(res.body.data).to.be.an('array');
 
-    expect(res.status).to.equal(200);
-    expect(res.body.status).to.equal(true);
-    expect(res.body).to.have.property('message');
-    expect(res.body).to.have.property('data');
-    expect(res.body.data).to.be.an('array');
-    // expect(res.body.data).to.have.property('_id');
-    // expect(res.body.data.title).to.equal(mockCollection.title);
+        done();
+
+      });
+
   });
 
-  it('Should update a collections in database', async _ => {
-    const res = await request.put(`/api/collections/${ dataToUpdateCollection._id }`)
+  it('Should update a collections in database',  _ => {
+    // console.log('Admin token', adminToken)
+    // console.log('Data to update ', dataToUpdateCollection)
+    request.put(`/api/collections/${ dataToUpdateCollection._id }`)
       .set({ 'x-access-token': adminToken })
-      .send(dataToUpdateCollection);
+      .send(dataToUpdateCollection)
+      .end((err, res) => {
+        if ( err ) _(err)
+        expect(res.status).to.equal(200);
+        expect(res.body.status).to.equal(true);
+        expect(res.body).to.have.property('message');
+        expect(res.body).to.have.property('data');
+        // expect(res.body.data).to.be.an('array');
+        expect(res.body.data).to.have.property('_id');
+        expect(res.body.data.title).to.equal(dataToUpdateCollection.title);
+        expect(res.body.data.description).to.equal(dataToUpdateCollection.description);
 
-    expect(res.status).to.equal(200);
-    expect(res.body.status).to.equal(true);
-    expect(res.body).to.have.property('message');
-    expect(res.body).to.have.property('data');
-    // expect(res.body.data).to.be.an('array');
-    expect(res.body.data).to.have.property('_id');
-    expect(res.body.data.title).to.equal(dataToUpdateCollection.title);
-    expect(res.body.data.description).to.equal(dataToUpdateCollection.description);
+        _()
+      });
+
   });
 
-  it('Should delete a collections in database', async _ => {
-    const res = await request.delete(`/api/collections/${ dataToUpdateCollection._id }`)
+  it('Should delete a collections in database', done => {
+    request
+      .delete(`/api/collections/${ dataToUpdateCollection._id }`)
       .set({ 'x-access-token': adminToken })
-      // .send(dataToUpdateCollection);
+      .end((err, res) => {
 
-    expect(res.status).to.equal(200);
-    expect(res.body.status).to.equal(true);
-    expect(res.body).to.have.property('message');
-    expect(res.body).to.have.property('data');
-    // expect(res.body.data).to.be.an('array');
-    expect(res.body.data).to.equal(dataToUpdateCollection._id);
-    // expect(res.body.data.title).to.equal(dataToUpdateCollection.title);
-    // expect(res.body.data.description).to.equal(dataToUpdateCollection.description);
+        if(err) return done(err);
+
+        expect(res.status).to.equal(200);
+        expect(res.body.status).to.equal(true);
+        expect(res.body).to.have.property('message');
+        expect(res.body).to.have.property('data');
+        expect(res.body.data).to.equal(dataToUpdateCollection._id);
+
+        done();
+      });
   });
 });
 
