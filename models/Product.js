@@ -12,7 +12,25 @@ const ProductSchema = new Schema({
     type: String,
     required: true
   },
-  tag: {
+  category: {
+    type: Schema.Types.ObjectId,
+    ref: Collection,
+    required: true
+  },
+  price: {
+    type: String,
+    required: true
+  },
+  description: {
+    type: String,
+    default: ''
+  },
+  productImage: {
+    type: String,
+    required: true,
+    default: ''
+  },
+  tags: {
     type: Array,
     default: []
   }
