@@ -1,0 +1,256 @@
+*{
+  box-sizing: border-box;
+  margin: 0rem;
+  padding: 0rem;
+  text-decoration: none;
+  list-style-type: none;
+  resize: none;
+}
+
+body{
+  font-family: Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+$primary-color: #ff153b;
+$light-color: #fff1f1;
+$dark-color: #555;
+$mobile-breakpoint: 560px;
+$sizes: (1, 2, 3, 4, 5, 6);
+$unit: 8.33%;
+@each $size in $sizes {
+  .col-#{$size}{
+    width: #{$size * $unit} ;
+    padding: .4rem;
+  }
+}
+
+.section-heading{
+  display: block;
+  margin: auto;
+  padding: 1rem 0rem;
+  text-align: center;
+  .section-title{
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: .5rem;
+  }
+  .sub-title{
+    line-height: 1.5;
+    font-size: .8rem;
+    text-align: center;
+  }
+}
+
+// Over write default scroll bar
+    .grid-wrapper::-webkit-scrollbar{
+      width: 100%;
+      height: 1rem;
+    }
+    .grid-wrapper::-webkit-scrollbar-track{
+      background-color: $dark-color;
+      border-radius: .6rem;
+    }
+
+    .grid-wrapper::-webkit-scrollbar-thumb{
+      background-color: $light-color;
+      border: 1px solid $dark-color;
+      border-radius: .6rem;
+      height: .25rem;
+    }
+.grid-wrapper{
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-content: center;
+  flex-wrap: wrap;
+
+  @media screen and (max-width: $mobile-breakpoint){
+    display: block;
+    overflow: auto;
+    white-space: nowrap;
+    background-color: $light-color;
+    
+    [class *= 'col-']{
+      display: inline-block;
+      // float: left;
+      width: 60%;
+    }
+    
+  }
+}
+[class *= 'col-']{
+  flex-basis: auto;
+}
+
+
+.container{
+  display: inline-block;
+  width: 80%;
+  margin: auto;
+}
+.clearfix::after{
+  content: '';
+  display: block;
+  clear: both;
+}
+
+.badge{
+  display: inline;
+  font-size: .75rem;
+  padding: 1px;
+  border-radius: 30%;
+  color: $light-color;
+  background-color: $primary-color;
+}
+
+// Navbar
+.navbar{
+  display: block;
+  padding: 0rem 2rem;
+  line-height: 4rem;
+  background-color: $light-color;
+  // overflow: no;
+}
+
+.logo-icon{
+  width: 2rem;
+  height: 2rem;
+  text-align: center;
+  background-color: transparent;
+  color: $primary-color;
+
+}
+.logo-name{
+  font-size: 2rem;
+  font-weight: 600;
+
+}
+.navlinks {
+  // Hide the navlink container on small screens
+  @media screen and (max-width: $mobile-breakpoint) {
+    display: none;
+  }
+
+  .navlink{
+    padding: 0rem .75rem;
+    color: $dark-color;
+    font-size: 1.25rem;
+    transition: color .5s ease-in;
+
+    &:hover{
+      color: $primary-color;
+      border-bottom: 3px solid $primary-color;
+    }
+  }
+}
+.navbar-wrapper{
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-content: center;
+  flex-wrap: wrap;
+}
+
+// Hide the hamburger menu icon on large screens 
+.hamburger{
+  display: none;
+  line-height: inherit;
+  // Only show the hamburger on small screens
+  @media screen and (max-width: $mobile-breakpoint){
+    display: inline-block;
+  }
+}
+// This navlink control MUSt not be shown
+#navlink-control{
+  display: none;
+  user-select: none;
+
+  // The Navlink control is checked by clicking the .hamburger
+  // This happens on small screens
+  &:checked ~ .navbar-wrapper{
+    // Expand the .hamburger and force the navlins wrapper to the next line/row
+    .hamburger{
+      flex-basis: 35%;
+      text-align: right;
+    }
+    // Since the navlink wrapper is on new row, 
+    // set it to take up the entire width
+    .navlinks{
+      display: block;
+      width: 100%;
+        .navlink{
+          display: block;
+        }
+    }
+        
+  } 
+}
+
+
+// Product Card
+.card-cta{
+  width: 100%;
+  padding: .75rem 0rem;
+  font-size: 1.25rem;
+  text-align: center;
+
+  &:hover{
+    opacity: .8;
+  }
+}
+.product-card{
+  display: block;
+  width: 100%;
+  padding: .5rem;
+  background-color: $light-color;
+  color: $dark-color;
+  transition: transform .5s ease;
+
+  &:hover{
+    transform: translateY(.25rem);
+  }
+
+  .product-card-image{
+    text-align: center;
+    width: 100%;
+    display: block;
+
+  }
+
+  .product-title{
+    display: block;
+    text-align: center;
+    padding: .75rem 0rem;
+    margin:  auto;
+    font-size: 1.25rem;
+    font-weight: 400;
+
+  }
+
+  .product-card-rating{
+    display: block;
+    margin: auto;
+    text-align: left;
+    padding: .25rem 0rem;
+  }
+
+  .product-card-cta{
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-content: center;
+
+    .buy-now-cta{
+      @extend .card-cta;
+      background-color: $primary-color;
+      color: $light-color;
+    }
+    .add-cart-cta{
+      @extend .card-cta;
+      background-color: $dark-color;
+      color: $light-color;
+    }
+
+  }
+}
+

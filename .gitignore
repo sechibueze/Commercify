@@ -5,6 +5,7 @@
 /.pnp
 .pnp.js
 
+/public/css/fa.min.css
 # testing
 /coverage
 
