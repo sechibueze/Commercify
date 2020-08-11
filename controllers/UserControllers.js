@@ -36,7 +36,7 @@ const signup = (req, res) => {
         newUser.save(err => {
           if (err) return res.status(500).json({ status: false, error: 'Server error:: Failed to save user' });
 
-          const payload = { id : newUser._id, auth: newUser.auth };
+          const payload = { id : newUser._id, auth: newUser.roles };
           jwt.sign(
             payload ,
             process.env.JWT_SECRET_KEY,
@@ -59,46 +59,129 @@ const signup = (req, res) => {
 
 
 // / Login existing users
-// const login = (req, res) => {
-//   const errorsContainer = validationResult(req);
-//   if (!errorsContainer.isEmpty()) {
-//     return res.status(422).json({
-//       status: false,
-//       errors: errorsContainer.errors.map(err => err.msg)
-//     });
-//   }
+const login = (req, res) => {
+  const errorsContainer = validationResult(req);
+  if (!errorsContainer.isEmpty()) {
+    return res.status(422).json({
+      status: false,
+      errors: errorsContainer.errors.map(err => err.msg)
+    });
+  }
 
-//   // Passed all validations
-//   const { email, password } = req.body;
-//   User.findOne({ email }, (err, user) => {
-//     if (err) return res.status(500).json({ status: false, error: 'Server error:: Could not retrieve record' });
+  // Passed all validations
+  const { email, password } = req.body;
+  User.findOne({ email }, (err, user) => {
+    if (err) return res.status(500).json({ status: false, error: 'Server error:: Could not retrieve record' });
 
-//     if (!user) return res.status(403).json({ status: false, error: 'Account does not exist' });
+    if (!user) return res.status(403).json({ status: false, error: 'Account does not exist' });
 
-//     // User has account
-//       bcrypt.compare( password, user.password, (err, isMatch) => {
-//         if (err) return res.status(500).json({ status: false, error: 'Server error:: Failed to compare password' });
+    // User has account
+      bcrypt.compare( password, user.password, (err, isMatch) => {
+        if (err) return res.status(500).json({ status: false, error: 'Server error:: Failed to compare password' });
 
-//         if (!isMatch) return res.status(401).json({ status: false, error: 'Account does not exist' });
+        if (!isMatch) return res.status(401).json({ status: false, error: 'Account does not exist' });
 
-//         const payload = { id: user._id, auth: user.auth };
-//           jwt.sign(
-//             payload,
-//             process.env.JWT_SECRET_KEY,
-//             { expiresIn: 60 * 60 * 60 },
-//             (err, token) => {
-//               if (err) return res.status(500).json({ status: false, error: 'Server error:: Failed to generate token' });
+        const payload = { id: user._id, auth: user.roles };
+          jwt.sign(
+            payload,
+            process.env.JWT_SECRET_KEY,
+            { expiresIn: 60 * 60 * 60 },
+            (err, token) => {
+              if (err) return res.status(500).json({ status: false, error: 'Server error:: Failed to generate token' });
 
-//               return res.status(200).json({
-//                 status: true,
-//                 message: 'User login successful',
-//                 token
-//               });
-//             })
-//       })
-//   });
-// }
+              return res.status(200).json({
+                status: true,
+                message: 'User login successful',
+                token
+              });
+            })
+      })
+  });
+}
+
+// Verify user with token
+const getUserWithAuth = (req, res) => {
+  const currentUserId = req.authUser.id;
+
+  User.findOne({_id: currentUserId})
+    .select('-password')
+    .then(user => {
+
+      return res.status(200).json({
+        status: true,
+        message: 'Authorized User data',
+        data: user
+      })
+
+    })
+    .catch(err => {
+      return res.status(500).json({
+        status: false,
+        error: 'Failed to authenticate user'
+      })
+    })
+};
+
+// Update User role 
+const updateUserAuth = (req, res) => {
+  
+   const errorsContainer = validationResult(req);
+    if (!errorsContainer.isEmpty()) {
+      return res.status(422).json({
+        status: false,
+        errors: errorsContainer.errors.map(err => err.msg)
+      });
+    }
+    
+    const { email } = req.body;
+
+  User.findOne({ email })
+    .select('-password')
+    .then(user => {
+
+      if (!user) {
+        return res.status(500).json({
+          status: false,
+          error: 'No user account found'
+        })
+      }
+
+      // User has an account
+      
+
+      if (!user.roles.includes('admin')) {
+        user.roles = [...user.roles, 'admin'];
+      }else{
+        user.roles = user.roles.filter(role => role !== 'admin');
+       
+      }
+      user.save(err => {
+        if (err) {
+          return res.status(500).json({
+          status: false,
+          error: 'Failed to update user role'
+        })
+        }
+
+        return res.status(200).json({
+          status: true,
+          message: 'User role has been updated accordingly',
+          data: user
+        });
+      })
+    })
+    .catch(err => {
+      return res.status(500).json({
+        status: false,
+        error: 'Failed to find user'
+      })
+    })
+};
+
 
 module.exports = {
-  signup
+  signup,
+  login,
+  getUserWithAuth,
+  updateUserAuth
 };
