@@ -122,6 +122,29 @@ const getUserWithAuth = (req, res) => {
     })
 };
 
+// loadAllUsers
+const loadAllUsers = (req, res) => {
+  // const currentUserId = req.authUser.id;
+
+  User.find()
+    .select('-password')
+    .then(users => {
+
+      return res.status(200).json({
+        status: true,
+        message: 'Authorized User data',
+        data: users
+      });
+
+    })
+    .catch(err => {
+      return res.status(500).json({
+        status: false,
+        error: 'Failed to authenticate user'
+      })
+    })
+};
+
 // Update User role 
 const updateUserAuth = (req, res) => {
   
@@ -178,10 +201,50 @@ const updateUserAuth = (req, res) => {
     })
 };
 
+/*** Create a new collection for products */
+const deleteUser = (req, res) => {
+  let filter = {};
+  const { id } = req.query;
+  if(id) filter._id = id;
+  User
+    .find(filter)
+    .then(users => {
+      if (users.length < 1) {
+        return res.status(404).json({
+          status: false,
+          error: 'No User was found'
+        });
+      }
+
+      User.deleteMany(filter, err => {
+        if (err) {
+                    
+          return res.status(404).json({
+            status: false,
+            error: 'Failed to remove users'
+          });
+        }
+
+        return res.status(200).json({
+          status: true,
+          message: 'Users removed',
+          data: Date.now()
+        });
+      })
+    })
+    .catch(err => {
+      return res.status(500).json({
+        status: false,
+        error: 'Could not retrieve users'
+      });
+    });
+};
 
 module.exports = {
   signup,
   login,
   getUserWithAuth,
-  updateUserAuth
+  loadAllUsers,
+  updateUserAuth,
+  deleteUser,
 };

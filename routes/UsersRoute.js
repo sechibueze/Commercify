@@ -7,7 +7,9 @@ const {
   signup,
   login,
   getUserWithAuth,
-  updateUserAuth
+  loadAllUsers,
+  updateUserAuth,
+  deleteUser,
 } = require('../controllers/UserControllers')
 /**
  * @route POST /users
@@ -36,11 +38,25 @@ router.post('/auth', [
 router.get('/auth', checkAuthUser, getUserWithAuth);
 
 /**
- * @route  GET /users/auth
- * @desc Verify user with token
+ * @route  GET /users/
+ * @desc loadAllUsers
+ */
+router.get('/', //checkAuthUser, 
+loadAllUsers);
+
+/**
+ * @route SECRET GET /users/auth
+ * @desc update user auth
  */
 router.put('/auth',
 [check('email', 'Email is required').isEmail()],
  updateUserAuth);
+
+ /**
+ * @route  DELETE /users?id=
+ * @desc Delete user(s)
+ */
+router.delete('/', //checkAuthUser, 
+deleteUser);
 
  module.exports = router;

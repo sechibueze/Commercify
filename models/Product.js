@@ -30,6 +30,10 @@ const ProductSchema = new Schema({
     required: true,
     default: ''
   },
+  visibility: {
+    type: Boolean,
+    default: false
+  },
   tags: {
     type: Array,
     default: []

@@ -1,4 +1,6 @@
 const jwt = require('jsonwebtoken');
+
+ 
 function checkAuthUser(req, res, next) {
   const token = req.headers['x-access-token'];
   if (!token) {
@@ -16,5 +18,6 @@ function checkAuthUser(req, res, next) {
       next();
   });
 }
+
 
 module.exports = checkAuthUser;
